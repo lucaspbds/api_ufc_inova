@@ -10,7 +10,7 @@ import requests, json
 from bs4 import BeautifulSoup
 from collections import defaultdict
 from dataclasses import dataclass, field, asdict
-from fastapi import FastAPI, HTTPException
+
 
 """
 Projeto: Web Scraping - Tecnologias da UFC Inova
@@ -41,6 +41,8 @@ Resultado:
 #API da UFC INOVA
 url_base = "https://ufcinova.ufc.br/wp-json/wp/v2/posts"
 
+#Nome do arquivo para salvar os dados
+nome_arquivo = "dados_ufcinova.json"
 
 #Molde das informações da tecnologia
 @dataclass
@@ -243,77 +245,21 @@ def processar_dados_html(dados_brutos: dict) -> dict:
 
     return tecnologias_por_categoria
 
-if __name__ == "__main__":
-    dados_brutos = coletar_dados_por_categoria(url_base, categorias_id)
-    tecnologias_processadas= processar_dados_html(dados_brutos)
-
+def salvar_dados_json(dados_processados, nome_arquivo):
     tecnologias_processadas_dict = defaultdict(list)
-    for categoria, tecnologias in tecnologias_processadas.items():
+    for categoria, tecnologias in dados_processados.items():
         for tec in tecnologias:
             tec_dict = asdict(tec)
             tecnologias_processadas_dict[categoria].append(tec_dict)
 
-    with open("dados_ufcinova.json", "w", encoding="utf-8") as f:
+    with open(nome_arquivo, "w", encoding="utf-8") as f:
         json.dump(tecnologias_processadas_dict, f, ensure_ascii=False, indent=2)
 
-    # Verificando se o banco de dados estava completo
-    print("\nCategorias - Qtd De Artigos")
-    total = 0
-    for key, paginas in dados_brutos.items():
-        qtdItens = 0
-        for pag in paginas:
-            qtdItens += len(pag)
-        total += qtdItens
-        print(f"{key} - {qtdItens}")
-    print(f'Total: {total}')
+if __name__ == "__main__":
+    dados_brutos = coletar_dados_por_categoria(url_base, categorias_id)
+    tecnologias_processadas = processar_dados_html(dados_brutos)
+    salvar_dados_json(tecnologias_processadas, nome_arquivo)
 
 
 
-app = FastAPI(
-    title="API - Tecnologias UFC Inova",
-    description="API pública com informações sobre tecnologias da Universidade Federal do Ceará (UFC).",
-    version="1.0.0"
-)
-
-with open("dados_ufcinova.json", "r", encoding="utf-8") as f:
-    dados = json.load(f)
-
-@app.get("/")
-def raiz():
-    return {"mensagem": "Bem-vindo à API da UFC Inova! Acesse /docs para explorar os endpoints."}
-
-
-@app.get("/categorias")
-def listar_categorias():
-    return {"categorias": list(dados.keys())}
-
-@app.get("/tecnologias")
-def listar_todas():
-    return dados
-
-
-@app.get("/tecnologias/{categoria}")
-def listar_por_categoria(categoria: str):
-    categoria = categoria.upper()
-    if categoria not in dados:
-        raise HTTPException(status_code=404, detail="Categoria não encontrada.")
-    return dados[categoria]
-
-@app.get("/buscar_titulo")
-def buscar_por_titulo(chave: str):
-    resultados = []
-    for cat, tecs in dados.items():
-        for tec in tecs:
-            if chave.lower() in tec["titulo"].lower():
-                resultados.append(tec)
-    return resultados
-
-@app.get("/buscar_departamento")
-def buscar_por_departamento(chave: str):
-    resultados = []
-    for cat, tecs in dados.items():
-        for tec in tecs:
-            if chave.lower() in tec["departamento"].lower():
-                resultados.append(tec)
-    return resultados
 
