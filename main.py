@@ -74,7 +74,7 @@ app = FastAPI(
         version="1.0.0"
 )
 
-nome_arquivo = nome_arquivo = "dados_ufcinova.json"
+nome_arquivo = "dados_ufcinova.json"
 dados = abrir_arquivo_json(nome_arquivo)
 
 @app.get("/")
@@ -94,15 +94,30 @@ def listar_todas():
 def quantidade_de_tecnologias():
     total = 0
     qtd_tecnologias = defaultdict(int)
-    for key, paginas in dados.items():
+    for categoria, tecnologias in dados.items():
         qtdItens = 0
-        qtdItens += len(paginas)
+        qtdItens += len(tecnologias)
         total += qtdItens
-        qtd_tecnologias[key] = qtdItens
+        qtd_tecnologias[categoria] = qtdItens
         
     qtd_tecnologias['Total'] = total
     
     return qtd_tecnologias
+
+@app.get("/tecnologias/anos_publicacao")
+def listar_anos_de_publicacao():
+    resultados = []
+    categoria_anos = defaultdict(list)
+    for cat, tecs in dados.items():
+        dict_temp = defaultdict(int)
+        for tec in tecs:
+            ano = datetime.strptime(tec["data_publicacao"], "%Y-%m-%dT%H:%M:%S").year
+            dict_temp[ano] += 1
+
+        categoria_anos[cat] = dict_temp
+
+    resultados.append(categoria_anos)
+    return resultados
 
 @app.get("/tecnologias/categoria/{categoria}")
 def listar_por_categoria(categoria: str):
@@ -111,7 +126,7 @@ def listar_por_categoria(categoria: str):
         raise HTTPException(status_code=404, detail="Categoria não encontrada.")
     return dados[categoria]
 
-@app.get("/buscar_titulo/{titulo}")
+@app.get("/tecnologias/buscar_titulo/{titulo}")
 def buscar_por_titulo(titulo: str):
     resultados = []
     for cat, tecs in dados.items():
@@ -120,7 +135,7 @@ def buscar_por_titulo(titulo: str):
                 resultados.append(tec)
     return resultados
 
-@app.get("/buscar_departamento/{departamento}")
+@app.get("/tecnologias/buscar_departamento/{departamento}")
 def buscar_por_departamento(departamento: str):
     resultados = []
     for cat, tecs in dados.items():
@@ -129,7 +144,7 @@ def buscar_por_departamento(departamento: str):
                 resultados.append(tec)
     return resultados
 
-@app.get("/buscar_ano_publicacao/{ano_publicacao}")
+@app.get("/tecnologias/buscar_ano_publicacao/{ano_publicacao}")
 def buscar_por_ano_publicacao(ano_publicacao: int):
     resultados = []
     for cat, tecs in dados.items():
@@ -139,8 +154,8 @@ def buscar_por_ano_publicacao(ano_publicacao: int):
                 resultados.append(tec)
     return resultados
 
-@app.get("/buscar_inventor/{nome_inventor}")
-def buscar_por_ano_publicacao(nome_inventor):
+@app.get("/tecnologias/buscar_inventor/{nome_inventor}")
+def buscar_por_inventor(nome_inventor: str):
     resultados = []
     for cat, tecs in dados.items():
         for tec in tecs:
