@@ -3,6 +3,7 @@ from datetime import datetime
 import json
 from  collections import defaultdict
 from web_scraping import WebScrapingUFC
+import os
 """
 Projeto: Web Scraping - Tecnologias da UFC Inova
 Autor: David Lucas Pereira Braga dos Santos
@@ -29,13 +30,12 @@ Resultado:
     Os dados são estruturados e exportados em formato JSON.
 """
 
-def abrir_arquivo_json(nome_arquivo):
-    try:
-        with open(nome_arquivo, "r", encoding="utf-8") as f:
-            dados = json.load(f)
-        print("Dados salvos na memória")
-        return dados
-    except FileNotFoundError:
+def carregar_arquivo_json(nome_arquivo):
+
+    if os.path.exists("dados_ufcinova.json"):
+        with open("dados_ufcinova.json", "r", encoding="utf-8") as f:
+            return json.load(f)
+    else:
         print("Arquivo JSON não encontrado. Iniciando o Web Scraping...")
         #API da UFC INOVA
         url_base = "https://ufcinova.ufc.br/wp-json/wp/v2/posts"
@@ -65,7 +65,7 @@ def abrir_arquivo_json(nome_arquivo):
         raspagem_dados.coletar_dados_por_categoria()
         raspagem_dados.processar_dados_html()
         raspagem_dados.salvar_dados_json()
-        abrir_arquivo_json(nome_arquivo)
+        carregar_arquivo_json(nome_arquivo)
         
  
 app = FastAPI(
@@ -75,7 +75,7 @@ app = FastAPI(
 )
 
 nome_arquivo = "dados_ufcinova.json"
-dados = abrir_arquivo_json(nome_arquivo)
+dados = carregar_arquivo_json(nome_arquivo)
 
 @app.get("/")
 def home():
