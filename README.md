@@ -88,13 +88,13 @@ Você também pode acessar a versão online da API:
 
 🔍 Endpoints principais
 
-Método	Endpoint	Descrição
-
-GET	/	Página inicial da API
-GET	/tecnologias	Lista todas as tecnologias
-GET	/categorias	Retorna todas as categorias disponíveis
-GET	/tecnologias/{categoria}	Lista tecnologias por categoria
-GET	/tecnologias/total	Retorna o número total de tecnologias cadastradas
+| Método |	Endpoint |	Descrição |
+| :---- | :----: | ----: |
+| GET |	/	| Página inicial da API |
+| GET |	/tecnologias	| Lista todas as tecnologias |
+| GET	| /categorias	| Retorna todas as categorias disponíveis |
+| GET	| /tecnologias/{categoria}	| Lista tecnologias por categoria |
+| GET	| /tecnologias/total	| Retorna o número total de tecnologias cadastradas |
 
 ---
 
@@ -116,13 +116,8 @@ Uvicorn – servidor ASGI
 
 💬 Autor
 
-Desenvolvido por David Lucas Pereira Braga dos Santos 💡
+💡 Desenvolvido por David Lucas Pereira Braga dos Santos 
 
 📍 Universidade Federal do Ceará — Ciência de Dados
 
 📧 Contato: https://www.linkedin.com/in/david-lucas-pereira/
-
-
----
-
-⭐ Se este projeto te ajudou, não esqueça de deixar uma estrela no repositório!
